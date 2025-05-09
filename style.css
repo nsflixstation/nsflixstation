@@ -432,43 +432,12 @@ body.popup-open {
     opacity: 0.8; /* Slight hover effect */
 }
 
-.share-button {
-    margin-top: 15px;
-    padding: 10px 20px;
-    border-radius: 4px;
-    border: none;
-    background-color: #007bff;
-    color: #fff;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-.share-button:hover {
-    background-color: #0056b3;
-}
-
-.search-clear {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: #ff4d4d;
-    color: #fff;
-    border: none;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    font-size: 14px;
+.no-results {
+    color: red;
+    font-size: 18px;
     font-weight: bold;
-    cursor: pointer;
-    display: none; /* Initially hidden */
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
-}
-
-.search-clear:hover {
-    background: #cc0000;
+    text-align: center;
+    margin-top: 20px;
 }
 
 @keyframes fadeIn {

@@ -9,12 +9,6 @@ const popupOverlay = document.querySelector('.popup-overlay');
 const popupContent = document.querySelector('.popup-content');
 const popupCloseButton = document.querySelector('.popup-close');
 
-const searchClearButton = document.createElement('button');
-searchClearButton.textContent = 'X';
-searchClearButton.className = 'search-clear';
-searchClearButton.style.display = 'none'; // Initially hidden
-searchInput.parentNode.appendChild(searchClearButton);
-
 let currentPage = 1; // Track the current page for pagination
 const resultsPerPage = 25; // Number of results per page updated to 25
 
@@ -72,6 +66,16 @@ function renderCards(filteredData = data) {
     filteredData.sort((a, b) => new Date(b.releaseDate) - new Date(a.releaseDate));
 
     container.innerHTML = ''; // Clear existing cards
+
+    if (filteredData.length === 0) {
+        // Display a message when no results are found
+        const noResultsMessage = document.createElement('div');
+        noResultsMessage.className = 'no-results';
+        noResultsMessage.textContent = 'The thing you searched is not available on our server.';
+        container.appendChild(noResultsMessage);
+        return;
+    }
+
     const startIndex = (currentPage - 1) * resultsPerPage;
     const endIndex = currentPage * resultsPerPage;
     const paginatedData = filteredData.slice(0, endIndex);
@@ -131,9 +135,6 @@ function renderCards(filteredData = data) {
 
 // Show popup with movie/TV show details
 function showPopup(item) {
-    const shareUrl = `${window.location.origin}?imdbId=${item.imdbId}`;
-    history.pushState({ imdbId: item.imdbId }, '', `?imdbId=${item.imdbId}`); // Update URL without refreshing
-
     popupContent.style.backgroundImage = `url(${item.backdrop})`;
     popupContent.style.backgroundSize = 'cover';
     popupContent.style.backgroundPosition = 'center';
@@ -155,7 +156,6 @@ function showPopup(item) {
             <p><strong>Categories:</strong> ${item.categories}</p>
             <p><strong>IMDb ID:</strong> ${item.imdbId}</p>
             <p><strong>TMDb ID:</strong> ${item.tmdbId}</p>
-            <button class="share-button" onclick="copyToClipboard('${shareUrl}')">Share</button>
         </div>
     `;
     popupContent.scrollTop = 0; // Reset scroll position to the top
@@ -174,13 +174,12 @@ function redirectToServer(imdbId, type) {
     }
 }
 
-// Close popup and reset URL
+// Close popup
 popupCloseButton.addEventListener('click', () => {
     popupOverlay.style.display = 'none';
     popupContent.innerHTML = ''; // Clear popup content when closed
     popupContent.scrollTop = 0; // Reset scroll position to the top
     document.body.classList.remove('popup-open'); // Re-enable background scrolling
-    history.pushState({}, '', window.location.origin); // Reset URL without refreshing
 });
 
 // Close popup when clicking outside
@@ -190,7 +189,6 @@ popupOverlay.addEventListener('click', (event) => {
         popupContent.innerHTML = ''; // Clear popup content
         popupContent.scrollTop = 0; // Reset scroll position to the top
         document.body.classList.remove('popup-open'); // Re-enable background scrolling
-        history.pushState({}, '', window.location.origin); // Reset URL without refreshing
     }
 });
 
@@ -206,30 +204,17 @@ async function addContentByImdbId(imdbId) {
     }
 }
 
-// Search functionality
-function searchCards() {
-    const query = searchInput.value.toLowerCase();
-    const filteredData = data.filter(item => {
-        return (
-            item.title.toLowerCase().includes(query) ||
-            item.type.toLowerCase().includes(query) ||
-            item.categories.toLowerCase().includes(query) ||
-            item.imdbId.toLowerCase().includes(query) ||
-            item.releaseDate.toLowerCase().includes(query)
-        );
-    });
-    renderCards(filteredData);
-}
-
-// Handle search input clear button visibility and functionality
+// Handle search input functionality
 searchInput.addEventListener('input', () => {
-    searchClearButton.style.display = searchInput.value ? 'inline' : 'none';
-});
-
-searchClearButton.addEventListener('click', () => {
-    searchInput.value = '';
-    searchClearButton.style.display = 'none';
-    renderCards(); // Reset the card display
+    renderCards(data.filter(item => {
+        return (
+            item.title.toLowerCase().includes(searchInput.value.toLowerCase()) ||
+            item.type.toLowerCase().includes(searchInput.value.toLowerCase()) ||
+            item.categories.toLowerCase().includes(searchInput.value.toLowerCase()) ||
+            item.imdbId.toLowerCase().includes(searchInput.value.toLowerCase()) ||
+            item.releaseDate.toLowerCase().includes(searchInput.value.toLowerCase())
+        );
+    }));
 });
 
 // Load more content
@@ -240,23 +225,6 @@ function loadMoreContent() {
 
 // Add event listener to the "Load More" button
 document.getElementById('load-more').addEventListener('click', loadMoreContent);
-
-// Add event listener to search input
-searchInput.addEventListener('input', searchCards);
-
-// Handle shared URL to open specific content
-window.addEventListener('load', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const imdbId = urlParams.get('imdbId');
-    if (imdbId) {
-        const content = data.find(item => item.imdbId === imdbId);
-        if (content) {
-            showPopup(content);
-        } else {
-            alert('Content not found for the shared IMDb ID.');
-        }
-    }
-});
 
 // Add content for the IMDb IDs provided by the user
 (async function initializeContent() {
