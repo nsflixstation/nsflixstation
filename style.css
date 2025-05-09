@@ -35,11 +35,11 @@ body.popup-open {
 }
 
 .container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* 5 cards per row on PC */
     gap: 20px;
     padding: 20px;
+    justify-items: center;
 }
 
 .card {
@@ -214,6 +214,60 @@ body.popup-open {
     background-repeat: no-repeat; /* Prevent tiling */
 }
 
+.player-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9); /* 90% black overlay for player popup */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1100;
+}
+
+.player-popup-content {
+    position: relative;
+    width: 80%;
+    max-width: 900px;
+    height: 80%;
+    background-color: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7);
+}
+
+.player-popup-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    background: #ff4d4d;
+    border: none;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.2s;
+}
+
+.player-popup-close:hover {
+    background: #cc0000;
+}
+
+.player-frame {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
 body.popup-open {
     overflow: hidden; /* Disable background scroll when popup is open */
 }
@@ -299,73 +353,82 @@ body.popup-open {
 }
 
 .popup-content {
-    background-color: rgba(30, 30, 30, 0.9); /* Semi-transparent background for content */
-    background-size: cover; /* Ensure backdrop covers the popup content */
-    background-position: center; /* Center the backdrop */
-    background-repeat: no-repeat; /* Prevent tiling */
-    padding: 0; /* Remove unnecessary padding */
-    border-radius: 8px;
-    width: 400px;
-    max-height: 80vh; /* Limit height for scrollability */
+    position: relative;
+    background-color: rgba(0, 0, 0, 0.7); /* 70% black overlay for better text visibility */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 20px; /* Add padding for better spacing */
+    border-radius: 12px;
+    width: 80%; /* Wider popup for better visibility */
+    max-height: 90vh; /* Limit height for scrollability */
     overflow-y: auto; /* Enable vertical scrolling */
-    text-align: center;
-    color: #e0e0e0;
-    position: relative; /* Ensure inner content is positioned correctly */
+    text-align: left; /* Align text to the left for a professional look */
+    color: #ffffff; /* Ensure text is visible on the dark background */
+    box-shadow: 0 2px 12px 0 rgba(255,255,255,0.10); /* Light white shadow */
+    border: 1.5px solid rgba(255,255,255,0.18); /* Subtle white border */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7); /* Add shadow for a professional look */
 }
 
-/* Popup content scrollbar styling */
-.popup-content::-webkit-scrollbar {
-    width: 8px; /* Narrow scrollbar width */
-}
-
-.popup-content::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1); /* Light transparent track */
-    border-radius: 4px; /* Rounded track edges */
-}
-
-.popup-content::-webkit-scrollbar-thumb {
-    background: #007bff; /* Blue scrollbar thumb */
-    border-radius: 4px; /* Rounded thumb edges */
-}
-
-.popup-content::-webkit-scrollbar-thumb:hover {
-    background: #0056b3; /* Darker blue on hover */
-}
-
-.popup-content {
-    scrollbar-width: thin; /* For Firefox: thin scrollbar */
-    scrollbar-color: #007bff rgba(255, 255, 255, 0.1); /* Thumb and track colors */
-}
-
-/* Modern scrollbar styling */
-.popup-content::-webkit-scrollbar {
-    width: 8px; /* Narrow scrollbar width */
-}
-
-.popup-content::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1); /* Light transparent track */
-    border-radius: 4px; /* Rounded track edges */
-}
-
-.popup-content::-webkit-scrollbar-thumb {
-    background: #007bff; /* Blue scrollbar thumb */
-    border-radius: 4px; /* Rounded thumb edges */
-}
-
-.popup-content::-webkit-scrollbar-thumb:hover {
-    background: #0056b3; /* Darker blue on hover */
-}
-
-.popup-content {
-    scrollbar-width: thin; /* For Firefox: thin scrollbar */
-    scrollbar-color: #007bff rgba(255, 255, 255, 0.1); /* Thumb and track colors */
+.popup-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Black overlay on the background image */
+    z-index: 1;
+    border-radius: 12px;
 }
 
 .popup-inner {
-    background-color: rgba(0, 0, 0, 0.7); /* Add a dark overlay for better readability */
-    padding: 20px; /* Add padding inside the inner content */
+    position: relative;
+    z-index: 2; /* Ensure content is above the overlay */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.popup-header {
+    text-align: center;
+    color: #ffffff; /* Ensure text is visible */
+}
+
+.popup-header h2 {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.popup-header p {
+    font-size: 16px;
+    margin: 5px 0;
+}
+
+.popup-body {
+    display: flex;
+    gap: 20px;
+    align-items: center; /* Center align poster and text vertically */
+    justify-content: center; /* Center align horizontally */
+    flex-wrap: wrap; /* Ensure proper alignment on smaller screens */
+    margin-top: 50px; /* Add extra space above poster and text */
+}
+
+.popup-poster {
+    width: 30%; /* Adjust poster size for PC */
+    max-width: 200px; /* Ensure it doesn't get too large */
     border-radius: 8px;
-    box-sizing: border-box; /* Ensure padding is included in width */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    object-fit: cover; /* Ensure the image maintains aspect ratio */
+}
+
+.popup-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    color: #ffffff; /* Ensure text is visible */
 }
 
 .popup-content img {
@@ -375,13 +438,13 @@ body.popup-open {
 }
 
 .popup-content h2 {
-    margin-bottom: 15px;
+    margin-bottom: 4px;
     font-size: 20px; /* Slightly smaller for better layout */
     color: #fff;
 }
 
 .popup-content p {
-    margin: 5px 0;
+    margin: 1px 0;
     font-size: 14px;
 }
 
@@ -440,6 +503,59 @@ body.popup-open {
     margin-top: 20px;
 }
 
+#content-type-btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #222;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-left: 8px;
+}
+#content-type-btn:hover {
+    background-color: #eee;
+}
+
+#content-type-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 220px;
+    background: #232323;
+    border-radius: 10px;
+    box-shadow: 0 2px 12px 0 rgba(255,255,255,0.10);
+    border: 1.5px solid rgba(255,255,255,0.18);
+    z-index: 2000;
+    padding: 24px 20px 20px 20px;
+    text-align: center;
+}
+#content-type-popup select {
+    width: 100%;
+    padding: 10px;
+    margin: 16px 0;
+    border-radius: 4px;
+    border: 1px solid #444;
+    background: #1e1e1e;
+    color: #fff;
+}
+#content-type-popup button {
+    width: 100%;
+    padding: 10px 0;
+    border-radius: 4px;
+    border: none;
+    background: #007bff;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+}
+#content-type-popup button:hover {
+    background: #0056b3;
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -452,7 +568,19 @@ body.popup-open {
 }
 
 /* Responsive Design */
+@media (max-width: 1024px) {
+    .container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
 @media (max-width: 768px) {
+    .container {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 10px;
+        gap: 15px;
+    }
+
     .search-bar {
         flex-direction: column;
         gap: 10px;
@@ -485,6 +613,34 @@ body.popup-open {
         width: 90%;
         max-width: 350px;
     }
+
+    .popup-body {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .popup-poster {
+        width: 40%;
+        max-width: 200px;
+    }
+
+    .popup-details {
+        text-align: center;
+    }
+
+    .dropdown {
+        position: static;
+        transform: none;
+        margin-bottom: 10px;
+    }
+
+    .popup-content {
+        background-image: none !important;
+        background-color: rgba(30, 30, 30, 0.98) !important;
+    }
+    .popup-content::before {
+        display: none !important;
+    }
 }
 
 @media (max-width: 480px) {
@@ -515,4 +671,11 @@ input[type="number"]::-webkit-outer-spin-button {
 
 input[type="number"] {
     -moz-appearance: textfield; /* Firefox */
+}
+
+.popup-content h2 {
+    margin-bottom: 4px;
+}
+.popup-content p {
+    margin: 1px 0;
 }

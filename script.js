@@ -5,12 +5,43 @@ const data = []; // Dynamically populated
 
 const container = document.querySelector('.container');
 const searchInput = document.querySelector('.search-bar input');
+const searchButton = document.querySelector('.search-bar button');
+const clearSearchBtn = document.getElementById('clear-search-btn');
 const popupOverlay = document.querySelector('.popup-overlay');
 const popupContent = document.querySelector('.popup-content');
 const popupCloseButton = document.querySelector('.popup-close');
 
 let currentPage = 1; // Track the current page for pagination
 const resultsPerPage = 25; // Number of results per page updated to 25
+
+let selectedContentType = 'ALL'; // ALL, Movie, TV Show
+
+// Content type popup logic
+const contentTypeBtn = document.getElementById('content-type-btn');
+const contentTypePopup = document.getElementById('content-type-popup');
+const contentTypeSelect = document.getElementById('content-type-select');
+const contentTypeApply = document.getElementById('content-type-apply');
+
+// Show popup on button click
+contentTypeBtn.addEventListener('click', () => {
+    contentTypeSelect.value = selectedContentType;
+    contentTypePopup.style.display = 'block';
+});
+
+// Hide popup and apply filter
+contentTypeApply.addEventListener('click', () => {
+    selectedContentType = contentTypeSelect.value;
+    contentTypeBtn.textContent = selectedContentType === 'ALL' ? 'ALL' : (selectedContentType === 'Movie' ? 'Movies' : 'TV Shows');
+    contentTypePopup.style.display = 'none';
+    renderCards();
+});
+
+// Hide popup on outside click
+window.addEventListener('mousedown', (e) => {
+    if (contentTypePopup.style.display === 'block' && !contentTypePopup.contains(e.target) && e.target !== contentTypeBtn) {
+        contentTypePopup.style.display = 'none';
+    }
+});
 
 // Fetch movie/TV show data from TMDb
 async function fetchTmdbData(imdbId) {
@@ -35,10 +66,17 @@ async function fetchTmdbData(imdbId) {
 
     const categories = (movie.genre_ids || []).map(id => genresMap[id]).join(', ');
 
+    // Fallback for backdrop: use poster if backdrop is missing, or empty string
+    let backdropPath = movie.backdrop_path 
+        ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
+        : (movie.poster_path 
+            ? `https://image.tmdb.org/t/p/original${movie.poster_path}`
+            : '');
+
     return {
         title: movie.title || movie.name,
         poster: `https://image.tmdb.org/t/p/w600_and_h900_bestv2${movie.poster_path}`,
-        backdrop: `https://image.tmdb.org/t/p/original${movie.backdrop_path}`,
+        backdrop: backdropPath,
         type: movie.media_type === 'movie' ? 'Movie' : 'TV Show',
         releaseDate: new Date(movie.release_date || movie.first_air_date).toLocaleDateString('en-US', {
             day: '2-digit',
@@ -62,23 +100,30 @@ function copyToClipboard(text) {
 
 // Render cards dynamically with pagination
 function renderCards(filteredData = data) {
+    // Filter by content type if not ALL
+    let filtered = filteredData;
+    if (selectedContentType !== 'ALL') {
+        filtered = filtered.filter(item => item.type === selectedContentType);
+    }
+
     // Sort the data by release date (latest first)
-    filteredData.sort((a, b) => new Date(b.releaseDate) - new Date(a.releaseDate));
+    filtered.sort((a, b) => new Date(b.releaseDate) - new Date(a.releaseDate));
 
     container.innerHTML = ''; // Clear existing cards
 
-    if (filteredData.length === 0) {
+    if (filtered.length === 0) {
         // Display a message when no results are found
         const noResultsMessage = document.createElement('div');
         noResultsMessage.className = 'no-results';
         noResultsMessage.textContent = 'The thing you searched is not available on our server.';
         container.appendChild(noResultsMessage);
-        return;
+        // Show or hide the "Load More" button
+        const loadMoreButton = document.getElementById('load-more');
     }
 
     const startIndex = (currentPage - 1) * resultsPerPage;
     const endIndex = currentPage * resultsPerPage;
-    const paginatedData = filteredData.slice(0, endIndex);
+    const paginatedData = filtered.slice(0, endIndex);
 
     paginatedData.forEach(item => {
         const card = document.createElement('div');
@@ -126,7 +171,7 @@ function renderCards(filteredData = data) {
 
     // Show or hide the "Load More" button
     const loadMoreButton = document.getElementById('load-more');
-    if (filteredData.length > endIndex) {
+    if (filtered.length > endIndex) {
         loadMoreButton.style.display = 'block';
     } else {
         loadMoreButton.style.display = 'none';
@@ -135,7 +180,12 @@ function renderCards(filteredData = data) {
 
 // Show popup with movie/TV show details
 function showPopup(item) {
-    popupContent.style.backgroundImage = `url(${item.backdrop})`;
+    // Use a default background if item.backdrop is missing or empty
+    let bgImage = item.backdrop && item.backdrop.trim() !== ''
+        ? `url(${item.backdrop})`
+        : 'none'; // fallback: you can use a default image URL here if you want
+
+    popupContent.style.backgroundImage = bgImage;
     popupContent.style.backgroundSize = 'cover';
     popupContent.style.backgroundPosition = 'center';
     popupContent.style.backgroundRepeat = 'no-repeat';
@@ -146,16 +196,26 @@ function showPopup(item) {
                 <label for="watch-server">Watch Online:</label>
                 <select id="watch-server">
                     <option value="server1">Server 1</option>
+                    <option value="server2">Server 2</option>
+                    <option value="server3">Server 3</option>
                 </select>
-                <button onclick="redirectToServer('${item.imdbId}', '${item.type}')">GO</button>
+                <button onclick="openPlayerPopup('${item.imdbId}', '${item.type}')">PLAY</button>
+                <button 
+                    onclick="redirectToServer('${item.imdbId}', '${item.type}')"
+                    style="display: none; pointer-events: none;"
+                >GO</button>
             </div>
-            <h2>${item.title}</h2>
-            <img src="${item.poster}" alt="${item.title}">
-            <p><strong>Type:</strong> ${item.type}</p>
-            <p><strong>Release Date:</strong> ${item.releaseDate}</p>
-            <p><strong>Categories:</strong> ${item.categories}</p>
-            <p><strong>IMDb ID:</strong> ${item.imdbId}</p>
-            <p><strong>TMDb ID:</strong> ${item.tmdbId}</p>
+            <div class="popup-body">
+                <img src="${item.poster}" alt="${item.title}" class="popup-poster">
+                <div class="popup-details">
+                    <h2>${item.title}</h2>
+                    <p><strong>Type:</strong> ${item.type}</p>
+                    <p><strong>Release Date:</strong> ${item.releaseDate}</p>
+                    <p><strong>Categories:</strong> ${item.categories}</p>
+                    <p><strong>IMDb ID:</strong> ${item.imdbId}</p>
+                    <p><strong>TMDb ID:</strong> ${item.tmdbId}</p>
+                </div>
+            </div>
         </div>
     `;
     popupContent.scrollTop = 0; // Reset scroll position to the top
@@ -163,13 +223,74 @@ function showPopup(item) {
     document.body.classList.add('popup-open'); // Disable background scrolling
 }
 
+// Open a new popup for the player
+function openPlayerPopup(imdbId, type) {
+    const server = document.getElementById('watch-server').value;
+    let embedUrl = '';
+
+    if (server === 'server1') {
+        embedUrl = type === 'Movie'
+            ? `https://vidsrc.xyz/embed/movie/${imdbId}`
+            : `https://vidsrc.xyz/embed/tv/${imdbId}`;
+    } else if (server === 'server2') {
+        embedUrl = type === 'Movie'
+            ? `https://vidsrc.to/embed/movie/${imdbId}`
+            : `https://vidsrc.to/embed/tv/${imdbId}`;
+    } else if (server === 'server3') {
+        if (type === 'Movie') {
+            embedUrl = `https://www.2embed.cc/embed/${imdbId}`;
+        } else {
+            alert('Server 3 is only available for movies. TV shows are not supported on the selected server please choose another server and TRY AGAIN.');
+            return;
+        }
+    }
+
+    if (embedUrl) {
+        const playerPopup = document.createElement('div');
+        playerPopup.className = 'player-popup-overlay';
+        playerPopup.innerHTML = `
+            <div class="player-popup-content">
+                <button class="player-popup-close" onclick="closePlayerPopup()">X</button>
+                <iframe src="${embedUrl}" frameborder="0" allowfullscreen class="player-frame"></iframe>
+            </div>
+        `;
+        document.body.appendChild(playerPopup);
+        document.body.classList.add('popup-open'); // Disable background scrolling
+    } else if (server !== 'server3') {
+        alert('Unable to load the player. Please try again.');
+    }
+}
+
+// Close the player popup
+function closePlayerPopup() {
+    const playerPopup = document.querySelector('.player-popup-overlay');
+    if (playerPopup) {
+        playerPopup.remove();
+        document.body.classList.remove('popup-open'); // Re-enable background scrolling
+    }
+}
+
 // Redirect to the selected server
 function redirectToServer(imdbId, type) {
     const server = document.getElementById('watch-server').value;
+    let url = '';
     if (server === 'server1') {
-        const url = type === 'Movie'
+        url = type === 'Movie'
             ? `https://vidsrc.xyz/embed/movie/${imdbId}`
             : `https://vidsrc.xyz/embed/tv/${imdbId}`;
+    } else if (server === 'server2') {
+        url = type === 'Movie'
+            ? `https://vidsrc.to/embed/movie/${imdbId}`
+            : `https://vidsrc.to/embed/tv/${imdbId}`;
+    } else if (server === 'server3') {
+        if (type === 'Movie') {
+            url = `https://www.2embed.cc/embed/${imdbId}`;
+        } else {
+            alert('Server 3 is only available for movies. TV shows are not supported on Server 3.');
+            return;
+        }
+    }
+    if (url) {
         window.open(url, '_blank');
     }
 }
@@ -200,13 +321,13 @@ async function addContentByImdbId(imdbId) {
         renderCards(); // Ensure the cards are rendered after adding content
     } catch (error) {
         console.error(`Error adding content for IMDb ID "${imdbId}":`, error.message);
-        alert(`Failed to add content for IMDb ID "${imdbId}". Please check the ID and try again.`);
+        
     }
 }
 
 // Handle search input functionality
 searchInput.addEventListener('input', () => {
-    renderCards(data.filter(item => {
+    let filtered = data.filter(item => {
         return (
             item.title.toLowerCase().includes(searchInput.value.toLowerCase()) ||
             item.type.toLowerCase().includes(searchInput.value.toLowerCase()) ||
@@ -214,7 +335,12 @@ searchInput.addEventListener('input', () => {
             item.imdbId.toLowerCase().includes(searchInput.value.toLowerCase()) ||
             item.releaseDate.toLowerCase().includes(searchInput.value.toLowerCase())
         );
-    }));
+    });
+    // Filter by content type if not ALL
+    if (selectedContentType !== 'ALL') {
+        filtered = filtered.filter(item => item.type === selectedContentType);
+    }
+    renderCards(filtered);
 });
 
 // Load more content
@@ -228,7 +354,7 @@ document.getElementById('load-more').addEventListener('click', loadMoreContent);
 
 // Add content for the IMDb IDs provided by the user
 (async function initializeContent() {
-    const imdbIds = ['tt18259086', 'tt3566834', 'tt4574334', 'tt9389998', 'tt16539454', 'tt10698680', 'tt7838252', 'tt7766378', 'tt29603959', 'tt9150192', 'tt31314296', 'tt21267296', 'tt31434639', 'tt8178634', 'tt12735488', 'tt13927994', 'tt13751694', 'tt15327088', 'tt15654328', 'tt0944947', 'tt5180504', 'tt13443470', 'tt10919420', 'tt28104766', 'tt10048342', 'tt2531336', 'tt13696452', 'tt0903747', 'tt7767422', 'tt16288804', 'tt5753856', 'tt11198330', 'tt23849204', 'tt10189514', 'tt1187043', 'tt5074352', 'tt3417422', 'tt0052572', 'tt0066763', 'tt0109117', 'tt12392504', 'tt0257315', 'tt9432978', 'tt9544034', 'tt12004706', 'tt6077448', 'tt9398466'
+    const imdbIds = ['tt18259086', 'tt3566834', 'tt13196080', 'tt0877057', 'tt13706018', 'tt26684398', 'tt4574334', 'tt9389998', 'tt16539454', 'tt10698680', 'tt7838252', 'tt7766378', 'tt29603959', 'tt9150192', 'tt31314296', 'tt21267296', 'tt31434639', 'tt8178634', 'tt12735488', 'tt13927994', 'tt13751694', 'tt15327088', 'tt15654328', 'tt0944947', 'tt5180504', 'tt13443470', 'tt10919420', 'tt28104766', 'tt10048342', 'tt2531336', 'tt13696452', 'tt0903747', 'tt7767422', 'tt16288804', 'tt5753856', 'tt11198330', 'tt23849204', 'tt10189514', 'tt1187043', 'tt5074352', 'tt3417422', 'tt0052572', 'tt0066763', 'tt0109117', 'tt12392504', 'tt0257315', 'tt9432978', 'tt9544034', 'tt12004706', 'tt6077448', 'tt9398466'
 
 ]; // Replace with the IMDb IDs you want to add
     for (const imdbId of imdbIds) {
