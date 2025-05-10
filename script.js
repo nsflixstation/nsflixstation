@@ -100,6 +100,9 @@ function copyToClipboard(text) {
 
 // Render cards dynamically with pagination
 function renderCards(filteredData = data) {
+    // Clear existing cards to avoid duplication
+    container.innerHTML = ''; // Clear existing cards
+
     // Filter by content type if not ALL
     let filtered = filteredData;
     if (selectedContentType !== 'ALL') {
@@ -109,16 +112,14 @@ function renderCards(filteredData = data) {
     // Sort the data by release date (latest first)
     filtered.sort((a, b) => new Date(b.releaseDate) - new Date(a.releaseDate));
 
-    container.innerHTML = ''; // Clear existing cards
-
     if (filtered.length === 0) {
         // Display a message when no results are found
         const noResultsMessage = document.createElement('div');
         noResultsMessage.className = 'no-results';
         noResultsMessage.textContent = 'The thing you searched is not available on our server.';
         container.appendChild(noResultsMessage);
-        // Show or hide the "Load More" button
-        const loadMoreButton = document.getElementById('load-more');
+        document.getElementById('load-more').style.display = 'none'; // Hide "Load More" button
+        return; // Exit early to avoid further rendering
     }
 
     const startIndex = (currentPage - 1) * resultsPerPage;
