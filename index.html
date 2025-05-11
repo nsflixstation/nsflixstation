@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FLiX Station</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Logo and company info -->
+    <div class="logo-container" style="display:flex;flex-direction:column;align-items:center;margin-top:32px;margin-bottom:8px;">
+        <a id="logo-title-link" class="logo-title" style="font-size:2.2rem;font-weight:800;letter-spacing:0.04em;text-decoration:none;color:#007bff;filter:drop-shadow(0 2px 8px #007bff33); cursor:pointer;">
+            FLiX Station
+        </a>
+        <div class="logo-subtitle" style="margin-top:6px;font-size:1.05rem;color:#888;font-weight:500;">
+            A 
+            <a href="https://niramaystudio.blogspot.com/" target="_blank" style="color:#007bff;text-decoration:underline;font-weight:600;">Niramay Studio</a>
+            <span id="logo-project-link" style="cursor:pointer;"> Project</span>
+        </div>
+    </div>
+
+    <!-- New selected collection headline container -->
+    <div id="selected-collection-headline" style="display:none;">
+        <h4 id="selected-collection-title"></h4>
+    </div>
+    <div class="search-bar">
+        <input type="text" placeholder="Search for content name, or IMDB ID...">
+        <button style="display: none; pointer-events: none;">Search</button>
+        <button id="content-type-btn">ALL</button>
+        <button id="collections-btn">Collections</button>
+        <button id="settings-btn" class="settings-full-btn" title="Settings">
+            <span class="settings-btn-inner">
+                <span class="settings-btn-icon">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                        <circle cx="14" cy="14" r="11" stroke="#007bff" stroke-width="2.5"/>
+                        <g stroke="#007bff" stroke-width="2.5" stroke-linecap="round">
+                            <circle cx="14" cy="14" r="4.2" fill="none"/>
+                            <path d="M14 4v3"/>
+                            <path d="M14 21v3"/>
+                            <path d="M4 14h3"/>
+                            <path d="M21 14h3"/>
+                            <path d="M7.1 7.1l2 2"/>
+                            <path d="M18.9 18.9l2 2"/>
+                            <path d="M7.1 20.9l2-2"/>
+                            <path d="M18.9 9.1l2-2"/>
+                        </g>
+                    </svg>
+                </span>
+                <span class="settings-btn-text">Settings</span>
+            </span>
+        </button>
+        <button id="collection-reset-btn" style="display: none;">Reset</button>
+    </div>
+
+    <div id="content-type-popup" class="popup" style="display:none; z-index:2000;">
+        <h2>Select Content Type</h2>
+        <select id="content-type-select">
+            <option value="ALL">ALL</option>
+            <option value="Movie">Movies</option>
+            <option value="TV Show">TV Shows</option>
+        </select>
+        <button id="content-type-apply">Apply</button>
+    </div>
+
+    <div id="collections-popup" class="popup" style="display:none; z-index:2100;">
+        <div class="collections-popup-header">
+            <h2>Collections</h2>
+            <button id="collections-close">Close</button>
+            <button id="collections-refresh" class="icon-btn" title="Refresh">
+                <!-- Gear-style refresh icon, same size as settings -->
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                    <g stroke="#007bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17.657 6.343A8 8 0 1 0 20 11"/>
+                        <polyline points="20 4 20 11 13 11"/>
+                    </g>
+                </svg>
+            </button>
+        </div>
+        <div id="collections-list">
+            <!-- Collection items will be dynamically added here -->
+        </div>
+    </div>
+
+    <!-- Settings Popup Overlay -->
+    <div id="settings-overlay" class="settings-overlay" style="display:none;">
+        <div id="settings-popup" class="popup settings-popup" style="z-index:2200;">
+            <div class="settings-popup-header">
+                <h2>Settings</h2>
+                <button id="settings-close" class="settings-close-btn" title="Close">&times;</button>
+            </div>
+            <div class="settings-popup-content">
+                <div class="settings-section">
+                    <label class="slow-load-label">
+                        <input type="checkbox" id="slow-load-toggle">
+                        <span class="slow-load-slider"></span>
+                        Load Together Mode
+                    </label>
+                    <div class="settings-description">
+                        When enabled, all content will load before showing cards. When disabled, cards appear as they load.
+                    </div>
+                    <label class="theme-toggle-label">
+                        <input type="checkbox" id="theme-toggle">
+                        <span class="theme-toggle-slider"></span>
+                        Light Mode
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="popup-overlay">
+        <div class="popup-content">
+            <!-- Popup content dynamically added by script -->
+        </div>
+        <button class="popup-close">X</button>
+    </div>
+
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div id="loading-spinner" class="loading-spinner">
+            <div class="spinner-circle"></div>
+            <div class="loading-text">Loading, please wait...</div>
+        </div>
+    </div>
+
+    <div class="container" style="display: none;">
+        <!-- Cards will be dynamically added here -->
+    </div>
+
+    <button id="load-more" style="display: none;">Load More</button>
+    <script src="script.js"></script>
+    <script>
+    // filepath: c:\Niramay Studio\Projects\FLiX Station - 1.0.4\index.html (inline script)
+    // Set logo links to current site URL
+    (function() {
+        var siteUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/');
+        var logoTitle = document.getElementById('logo-title-link');
+        var logoProject = document.getElementById('logo-project-link');
+        if (logoTitle) {
+            logoTitle.onclick = function() { window.location.reload(); }; // refresh page on click
+        }
+        if (logoProject) {
+            logoProject.onclick = function() { window.open(siteUrl, '_blank'); };
+        }
+    })();
+    </script>
+</body>
+</html>
