@@ -1,16 +1,15 @@
-## Hi there 👋
+## 📦 Version 1.0.3
 
-<!--
-**nsflixstation/nsflixstation** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+## 🔧 Major Functional & Visual Changes
 
-Here are some ideas to get you started:
+### 🧾 index.html  
+✅ **Load Together Mode & light mode in sittings:**  
+- A new button was added to let you change the sittings on site to change light mode enable load together mode.  
+- **Load Together Mode:** When enabled, all content will load before showing cards. When disabled, cards appear as they load.  
+- the sittings are saved in cookies so you don't need to change it everytime you visit
 
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+---
+
+### 🎨 style.css  
+✨ **Modernized UI with Visual Enhancements:**  
+- added new peak design ailment for mobile devices
