@@ -940,8 +940,31 @@ body.hide-content-type-btn #content-type-btn {
     }
 }
 @media (max-width: 480px) {
+    /* Improve logo container spacing and horizontal padding */
+    .logo-container {
+        margin-top: 16px;
+        margin-bottom: 8px;
+        padding: 0 10px;
+    }
+
+    /* Improve search bar spacing and make its children full width */
+    .search-bar {
+        margin: 20px 10px 0 10px;
+        padding: 10px;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .search-bar input,
+    .search-bar button,
+    #content-type-btn,
+    #clear-search-btn {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Ensure the container grid displays one full-width card per row */
     .container {
-        grid-template-columns: 1fr; /* Ensure only one card per row */
+        grid-template-columns: 1fr;
         gap: 10px;
         padding: 6px;
     }
@@ -949,15 +972,20 @@ body.hide-content-type-btn #content-type-btn {
         width: 98%;
         margin: 0 auto;
     }
-    .search-bar {
-        gap: 8px;
-        padding: 8px 4px;
-    }
-    .popup {
-        padding: 12px;
-    }
+
+    /* Center popup text for better readability on mobile */
     .popup-content {
-        padding: 12px 6px 6px 6px;
+        padding: 12px 6px;
+    }
+    .popup-content h2,
+    .popup-content p {
+        text-align: center;
+    }
+
+    /* Adjust settings popup on small screens */
+    .settings-popup {
+        margin: 10px;
+        width: calc(100% - 20px);
     }
 }
 
