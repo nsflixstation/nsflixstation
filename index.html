@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FLiX Station</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- New selected collection headline container -->
+    <div id="selected-collection-headline" style="display:none;">
+        <h4 id="selected-collection-title"></h4>
+    </div>
+    <div class="search-bar">
+        <input type="text" placeholder="Search for content name, or IMDB ID...">
+        <button style="display: none; pointer-events: none;">Search</button>
+        <button id="content-type-btn">ALL</button>
+        <button id="collections-btn">Collections</button>
+        <button id="collection-reset-btn" style="display: none;">Reset</button>
+    </div>
+
+    <div id="content-type-popup" class="popup" style="display:none; z-index:2000;">
+        <h2>Select Content Type</h2>
+        <select id="content-type-select">
+            <option value="ALL">ALL</option>
+            <option value="Movie">Movies</option>
+            <option value="TV Show">TV Shows</option>
+        </select>
+        <button id="content-type-apply">Apply</button>
+    </div>
+
+    <div id="collections-popup" class="popup" style="display:none; z-index:2100;">
+        <div class="collections-popup-header">
+            <h2>Collections</h2>
+            <button id="collections-close">Close</button>
+        </div>
+        <div id="collections-list">
+            <!-- Collection items will be dynamically added here -->
+        </div>
+    </div>
+
+    <div class="popup-overlay">
+        <div class="popup-content">
+            <!-- Popup content dynamically added by script -->
+        </div>
+        <button class="popup-close">X</button>
+    </div>
+
+    <div class="container">
+        <!-- Cards will be dynamically added here -->
+    </div>
+
+    <button id="load-more" style="display: none;">Load More</button>
+    <script src="script.js"></script>
+</body>
+</html>
